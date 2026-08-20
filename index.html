@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Space - พื้นที่ปลอดภัยทางใจสำหรับคุณ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FFFDF4;
+            --card-bg: #FFFFFF;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --primary: #D4A373;
+            --accent: #FAEDCD;
+            --border-radius: 12px;
+            --btn-bg: #FEFAE0;
+            --btn-hover: #FAEDCD;
+            --history-bg: #F9F6EE;
+            --icon-stroke: #FFB703;
+        }
+
+        body.dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --text-main: #F4F4F4;
+            --text-muted: #AAAAAA;
+            --primary: #FFB703;
+            --accent: #332B00;
+            --btn-bg: #2A2A2A;
+            --btn-hover: #3A3A3A;
+            --history-bg: #181818;
+            --icon-stroke: #FFB703;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Sarabun', 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        header h1 {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--text-main);
+            text-align: left;
+        }
+
+        .theme-btn {
+            background: var(--btn-bg);
+            border: 1px solid var(--primary);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .theme-btn:hover {
+            background: var(--btn-hover);
+        }
+        
+        .intro-section {
+            padding: 30px 0;
+        }
+
+        .intro-section p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .start-btn {
+            background-color: var(--primary);
+            color: #121212;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .start-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .start-btn:active {
+            transform: scale(0.98);
+        }
+
+        .mood-section {
+            margin-bottom: 20px;
+            text-align: left;
+            display: none; /* ซ่อนไว้ก่อนในหน้าแรก */
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .mood-btn {
+            background-color: var(--btn-bg);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 12px 6px;
+            font-size: 0.8rem;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mood-btn:hover {
+            background-color: var(--btn-hover);
+            border-color: var(--primary);
+        }
+
+        .mood-btn.selected {
+            background-color: var(--primary);
+            color: #121212;
+            border-color: var(--primary);
+            font-weight: 500;
+        }
+
+        .mood-btn svg {
+            width: 36px;
+            height: 36px;
+            background-color: white;
+            border-radius: 50%;
+            margin-bottom: 8px;
+            stroke: var(--icon-stroke);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            padding: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .diary-section {
+            margin-top: 16px;
+            text-align: left;
+            display: none;
+        }
+
+        .diary-section label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .diary-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            resize: none;
+            outline: none;
+            height: 70px;
+            background-color: var(--btn-bg);
+            color: var(--text-main);
+        }
+
+        .save-diary-btn {
+            width: 100%;
+            background-color: var(--primary);
+            color: #121212;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: opacity 0.2s;
+        }
+
+        .save-diary-btn:hover {
+            opacity: 0.9;
+        }
+
+        .result-box {
+            background-color: var(--history-bg);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            text-align: left;
+            display: none;
+            border-left: 4px solid var(--primary);
+            max-height: 380px;
+            overflow-y: auto;
+        }
+
+        .result-box h3 {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .result-box p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 10px;
+            white-space: pre-line;
+        }
+
+        .diary-display {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-top: 8px;
+            font-style: italic;
+            border: 1px solid var(--accent);
+        }
+
+        .reset-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 16px;
+            text-decoration: underline;
+            display: none;
+        }
+
+        .reset-btn:hover {
+            color: var(--text-main);
+        }
+
+        .history-container {
+            margin-top: 24px;
+            text-align: left;
+            border-top: 1px solid var(--accent);
+            padding-top: 16px;
+        }
+
+        .history-container h4 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .history-list {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background: var(--history-bg);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+            border: 1px solid var(--accent);
+            color: var(--text-main);
+        }
+
+        .clear-history-btn {
+            background: none;
+            border: none;
+            color: #d90429;
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-top: 6px;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-flex">
+            <h1>Safe Space</h1>
+            <button class="theme-btn" onclick="toggleTheme()">🌓 สลับโหมด</button>
+        </div>
+
+        <!-- หน้าแรก (Intro) -->
+        <div id="introSection" class="intro-section">
+            <p>ยินดีต้อนรับสู่พื้นที่ปลอดภัยของคุณ<br>วันนี้ใจเธอเป็นอย่างไรบ้าง? มาลองทบทวนความรู้สึกกันนะ</p>
+            <button class="start-btn" onclick="startCheckIn()">กดเพื่อแสดงและสำรวจอารมณ์</button>
+        </div>
+
+        <!-- หน้าแสดงอารมณ์ -->
+        <div id="moodSection" class="mood-section">
+            <header>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px; text-align: left;">Check-in time: วันนี้ใจเธอเป็นอย่างไรบ้าง?</p>
+            </header>
+            <span style="font-size: 0.85rem; color: var(--text-muted);">เลือกความรู้สึกที่ตรงกับใจเธอตอนนี้มากที่สุด:</span>
+            <div class="mood-grid">
+                <button class="mood-btn" onclick="selectMood('Excited', 'Excited (ตื่นเต้น/กระตือรือร้น)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 9.5l1.5 1.5-1.5 1.5M16 9.5l-1.5 1.5 1.5 1.5"/><path d="M8 15a4 4 0 008 0H8z"/></svg>Excited<br><span style="font-size:0.65rem; opacity:0.8;">(ตื่นเต้น)</span>
+                </button>
+                <button class="mood-btn" onclick="selectMood('Joyful', 'Joyful (มีความสุข/เบิกบาน)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 9.5A2 2 0 0010 8M16 9.5A2 2 0 0014 8"/><path d="M8 14a4 4 0 008 0"/></svg>Joyful<br><span style="font-size:0.65rem; opacity:0.8;">(มีความสุข)</span>
+                </button>
+                <button class="mood-btn" onclick="selectMood('Grateful', 'Grateful (ซาบซึ้ง/ขอบคุณ)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 10h.01M16 10h.01"/><path d="M9 15c1.5 1.5 4.5 1.5 6 0"/></svg>Grateful<br><span style="font-size:0.65rem; opacity:0.8;">(ซาบซึ้ง)</span>
+                </button>
+                <button class="mood-btn" onclick="selectMood('Energized', 'Energized (มีพลังเต็มเปี่ยม)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="8" cy="10" r="1.5"/><circle cx="16" cy="10" r="1.5"/><path d="M9 16a3 3 0 006 0"/></svg>Energized<br><span style="font-size:0.65rem; opacity:0.8;">(มีพลัง)</span>
+                </button>
+                <button class="mood-btn" onclick="selectMood('Sensitive', 'Sensitive (อ่อนไหวง่าย/เปราะบาง)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 10h.01M16 10h.01"/><path d="M16 12v3"/><path d="M9 15a3 3 0 016 0"/></svg>Sensitive<br><span style="font-size:0.65rem; opacity:0.8;">(อ่อนไหว)</span>
+                </button>
+                <button class="mood-btn" onclick="selectMood('Confused', 'Confused (สับสน/ไม่แน่ใจ)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 10h.01M16 10h.01"/><path d="M9 16l6-2"/></svg>Confused<br><span style="font-size:0.65rem; opacity:0.8;">(สับสน)</span>
+                </button>
+                <button class="mood-btn" onclick="selectMood('Bored', 'Bored (เบื่อหน่าย/เฉื่อยชา)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7 10h2M15 10h2"/><path d="M9 15h6"/></svg>Bored<br><span style="font-size:0.65rem; opacity:0.8;">(เบื่อหน่าย)</span>
+                </button>
+                <button class="mood-btn" onclick="selectMood('Stressed', 'Stressed (เครียด/กดดัน)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 9l2 2M16 9l-2 2"/><path d="M8 15l2-1 2 1 2-1 2 1"/></svg>Stressed<br><span style="font-size:0.65rem; opacity:0.8;">(เครียด)</span>
+                </button>
+                <button class="mood-btn" onclick="selectMood('Angry', 'Angry (โกรธ/หงุดหงิด)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M7 9l2 2M17 9l-2 2"/><path d="M8 16a4 4 0 018 0"/></svg>Angry<br><span style="font-size:0.65rem; opacity:0.8;">(โกรธ)</span>
+                </button>
+                <button class="mood-btn" onclick="selectMood('Insecure', 'Insecure (ไม่มั่นใจ/กังวลใจ)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 10h.01M16 10h.01"/><path d="M10 15a2 2 0 014 0"/></svg>Insecure<br><span style="font-size:0.65rem; opacity:0.8;">(กังวลใจ)</span>
+                </button>
+                <button class="mood-btn" onclick="selectMood('Hurt', 'Hurt (เจ็บปวด/เสียใจ)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 9l2 2M10 9l-2 2M16 9l-2 2M14 9l2 2"/><path d="M9 16a3 3 0 016 0"/></svg>Hurt<br><span style="font-size:0.65rem; opacity:0.8;">(เสียใจ)</span>
+                </button>
+                <button class="mood-btn" onclick="selectMood('Guilty', 'Guilty (รู้สึกผิดในใจ)', this)">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 11a2 2 0 012-1M16 11a2 2 0 00-2-1"/><path d="M10 16a2 2 0 014 0"/></svg>Guilty<br><span style="font-size:0.65rem; opacity:0.8;">(รู้สึกผิด)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- หน้าบันทึกอารมณ์ -->
+        <div id="diarySection" class="diary-section">
+            <label for="diaryText">พื้นที่ระบายความในใจสั้นๆ (ไม่บังคับ):</label>
+            <textarea id="diaryText" class="diary-input" placeholder="พิมพ์ระบายเรื่องที่เจอมาวันนี้ได้เลยนะ..."></textarea>
+            <button class="save-diary-btn" onclick="submitDiary()">บันทึกและรับคำแนะนำ</button>
+        </div>
+
+        <!-- หน้าคำแนะนำจัดการอารมณ์ -->
+        <div id="resultBox" class="result-box">
+            <h3 id="resultTitle">คำแนะนำสำหรับคุณ</h3>
+            <p id="resultDesc">คำแนะนำจะปรากฏที่นี่...</p>
+            <div id="userDiaryNote" class="diary-display" style="display: none;"></div>
+        </div>
+
+        <button id="resetBtn" class="reset-btn" onclick="resetApp()">กลับไปหน้าเริ่มต้นใหม่</button>
+
+        <!-- ประวัติ -->
+        <div class="history-container">
+            <h4>📜 ประวัติการบันทึกอารมณ์</h4>
+            <div id="historyList" class="history-list">
+                <p style="font-size: 0.8rem; color: var(--text-muted);">ยังไม่มีประวัติการบันทึก</p>
+            </div>
+            <button id="clearHistoryBtn" class="clear-history-btn" onclick="clearHistory()" style="display:none;">ล้างประวัติทั้งหมด</button>
+        </div>
+    </div>
+
+    <script>
+        let currentMoodType = '';
+        let currentMoodName = '';
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        // ฟังก์ชันเมื่อกดเริ่มหน้าแรก
+        function startCheckIn() {
+            document.getElementById('introSection').style.display = 'none';
+            document.getElementById('moodSection').style.display = 'block';
+        }
+
+        // แก้ไขให้ส่ง parameter ตัวปุ่ม (btn) มาด้วย
+        function selectMood(type, moodName, btn) {
+            currentMoodType = type;
+            currentMoodName = moodName;
+
+            const buttons = document.querySelectorAll('.mood-btn');
+            buttons.forEach(b => b.classList.remove('selected'));
+            
+            btn.classList.add('selected');
+
+            document.getElementById('diarySection').style.display = 'block';
+            document.getElementById('resultBox').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'none';
+            
+            document.getElementById('diarySection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function submitDiary() {
+            const titleElem = document.getElementById('resultTitle');
+            const descElem = document.getElementById('resultDesc');
+            const resultBox = document.getElementById('resultBox');
+            const diaryNote = document.getElementById('userDiaryNote');
+            const diaryInput = document.getElementById('diaryText').value.trim();
+            const resetBtn = document.getElementById('resetBtn');
+
+            if (!currentMoodType) return;
+
+            let adviceDesc = "";
+
+            switch(currentMoodType) {
+                case 'Excited': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• ใช้ประโยชน์จากพลังงานด้านบวกนี้ในการเริ่มต้นโปรเจกต์ใหม่ หรือทำกิจกรรมที่สร้างสรรค์\n🤍 คำปลอบโยน:\n'ความตื่นเต้นคือเครื่องยืนยันว่าหัวใจเธอกำลังมีชีวิตชีวา! ขอให้สนุกกับโมเมนต์นี้นะ'"; break;
+                case 'Joyful': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• ซึมซับความรู้สึกดีๆ นี้ไว้ ดื่มด่ำกับช่วงเวลาแห่งความสุขให้เต็มที่\n🤍 คำปลอบโยน:\n'รอยยิ้มของเธอคือสิ่งที่สวยงาม เก็บความสุขนี้ไว้โอบกอดตัวเองในวันต่อๆ ไปนะ'"; break;
+                case 'Grateful': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• ส่งต่อความรู้สึกดีๆ นี้ด้วยการขอบคุณคนรอบข้าง หรือบันทึกสิ่งดีๆ เล็กๆ น้อยๆ ในวันนี้\n🤍 คำปลอบโยน:\n'การมองเห็นความงดงามในสิ่งเล็กน้อย คือหัวใจที่อ่อนโยนและทรงพลัง ขอบคุณความน่ารักของเธอนะ'"; break;
+                case 'Energized': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• นำพลังงานที่ล้นเหลือไปทำสิ่งที่เกิดประโยชน์ เช่น ออกกำลังกาย หรือเคลียร์งานที่ค้างไว้\n🤍 คำปลอบโยน:\n'พลังงานเต็มเปี่ยมแบบนี้ยอดเยี่ยมมาก! ใช้มันสร้างสรรค์วันดีๆ ให้ตัวเองกัน'"; break;
+                case 'Sensitive': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• อนุญาตให้ตัวเองพักผ่อน พักการรับรู้เรื่องราวหนักๆ หรืออยู่เงียบๆ ในพื้นที่ปลอดภัย\n🤍 คำปลอบโยน:\n'ไม่เป็นไรเลยที่จะรู้สึกเปราะบาง หัวใจเธอแบกรับเรื่องราวมามากแล้ว พักผ่อนเถอะนะ คนเก่ง'"; break;
+                case 'Confused': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• ลองเขียนสิ่งที่สับสนออกมาเป็นข้อๆ หรือหยุดพักสมองด้วยการทำกิจกรรมง่ายๆ เช่น เดินเล่น\n🤍 คำปลอบโยน:\n'ความสับสนเป็นส่วนหนึ่งของการเติบโต ไม่ต้องรีบร้อนหาคำตอบ ค่อยๆ แกะปมทีละเปลาะนะ'"; break;
+                case 'Bored': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• ลองเปลี่ยนบรรยากาศ ทำอะไรที่ต่างไปจากเดิมเล็กน้อย หรืออนุญาตให้ตัวเองอยู่เฉยๆ โดยไม่ต้องรู้สึกผิด\n🤍 คำปลอบโยน:\n'ความเบื่ออาจเป็นสัญญาณว่าสมองต้องการพัก ปล่อยให้มันว่างเปล่าเสียบ้าง ก็เป็นการพักผ่อนที่ดีนะ'"; break;
+                case 'Stressed': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• ฝึกหายใจเข้า-ออกลึกๆ ช้าๆ (4-7-8) หรือยืดเหยียดร่างกายเพื่อลดความตึงเครียด\n🤍 คำปลอบโยน:\n'เธอเก่งมากแล้วที่อดทนและพยายาม ความเครียดเป็นเพียงแขกชั่วคราวเดี๋ยวก็ผ่านพ้นไป'"; break;
+                case 'Angry': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• นับ 1-10 ในใจ หรือปลีกตัวออกจากสถานการณ์ตึงเครียด ดื่มน้ำเย็นเพื่อช่วยให้อารมณ์เย็นลง\n🤍 คำปลอบโยน:\n'ความโกรธเป็นเรื่องธรรมดา อนุญาตให้โกรธได้ แต่ต้องดูแลตัวเองและไม่ทำร้ายใครนะ'"; break;
+                case 'Insecure': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• หยุดเปรียบเทียบตัวเองกับคนอื่น ทบทวนข้อดีและความสำเร็จเล็กๆ ของตัวเองที่ผ่านมา\n🤍 คำปลอบโยน:\n'เธอมีคุณค่าในแบบที่เป็นอยู่ตอนนี้เสมอ ไม่จำเป็นต้องสมบูรณ์แบบเพื่อที่จะเป็นคนที่ดีพอ'"; break;
+                case 'Hurt': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• อนุญาตให้ตัวเองเสียใจ ร้องไห้ได้ถ้าต้องการ หาเครื่องดื่มอุ่นๆ และกอดตัวเองแน่นๆ\n🤍 คำปลอบโยน:\n'เจ็บได้ก็หายได้ แผลใจนี้จะค่อยๆ สมานตัวตามกาลเวลา เธอเข้มแข็งและกล้าหาญมากแล้ว'"; break;
+                case 'Guilty': adviceDesc = "💡 แนวทางการดูแลและบริหารอารมณ์:\n• พิจารณาว่าแก้ไขอะไรได้ไหม ถ้าได้ให้ลงมือทำ ถ้าไม่ได้ให้ถือเป็นบทเรียนและฝึกให้อภัยตัวเอง\n🤍 คำปลอบโยน:\n'ไม่มีใครไม่เคยทำผิดพลาด ความผิดไม่ได้นิยามตัวเธอ ให้อภัยตัวเองแล้วเริ่มต้นใหม่นะ'"; break;
+            }
+
+            titleElem.innerText = `ผลการเช็คอิน: ${currentMoodName}`;
+            descElem.innerText = adviceDesc;
+
+            if (diaryInput !== "") {
+                diaryNote.innerText = `บันทึกของเธอ: "${diaryInput}"`;
+                diaryNote.style.display = 'block';
+            } else {
+                diaryNote.style.display = 'none';
+            }
+
+            // ซ่อนช่องเลือกอารมณ์และช่องพิมพ์ไดอารี่ เพื่อเน้นโชว์ผลลัพธ์ (ตามลำดับการทำงานที่ต้องการ)
+            document.getElementById('moodSection').style.display = 'none';
+            document.getElementById('diarySection').style.display = 'none';
+            
+            resultBox.style.display = 'block';
+            resetBtn.style.display = 'inline-block';
+            
+            resultBox.scrollIntoView({ behavior: 'smooth' });
+
+            saveHistory(currentMoodName, diaryInput);
+        }
+
+        function saveHistory(mood, note) {
+            let history = JSON.parse(localStorage.getItem('moodHistory')) || [];
+            const now = new Date();
+            const timeString = now.toLocaleString('th-TH', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            history.unshift({ time: timeString, mood: mood, note: note });
+            if (history.length > 20) history.pop();
+            localStorage.setItem('moodHistory', JSON.stringify(history));
+            loadHistory();
+        }
+
+        function loadHistory() {
+            let history = JSON.parse(localStorage.getItem('moodHistory')) || [];
+            const historyList = document.getElementById('historyList');
+            const clearBtn = document.getElementById('clearHistoryBtn');
+
+            if (history.length > 0) {
+                historyList.innerHTML = '';
+                history.forEach(item => {
+                    let div = document.createElement('div');
+                    div.className = 'history-item';
+                    div.innerHTML = `<strong>[${item.time}]</strong> อารมณ์: ${item.mood} ${item.note ? '<br>บันทึก: ' + item.note : ''}`;
+                    historyList.appendChild(div);
+                });
+                clearBtn.style.display = 'block';
+            } else {
+                historyList.innerHTML = '<p style="font-size: 0.8rem; color: var(--text-muted);">ยังไม่มีประวัติการบันทึก</p>';
+                clearBtn.style.display = 'none';
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('คุณต้องการล้างประวัติการบันทึกทั้งหมดใช่หรือไม่?')) {
+                localStorage.removeItem('moodHistory');
+                loadHistory();
+            }
+        }
+
+        // ฟังก์ชันเริ่มใหม่ ให้กลับไปโชว์หน้า Intro อีกครั้ง
+        function resetApp() {
+            const buttons = document.querySelectorAll('.mood-btn');
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('diaryText').value = '';
+            
+            // รีเซ็ตการแสดงผลกลับไปหน้าแรกสุด
+            document.getElementById('introSection').style.display = 'block';
+            document.getElementById('moodSection').style.display = 'none';
+            document.getElementById('diarySection').style.display = 'none';
+            document.getElementById('resultBox').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'none';
+            
+            currentMoodType = '';
+            currentMoodName = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = function() {
+            loadHistory();
+        }
+    </script>
+</body>
+</html>
