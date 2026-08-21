@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Safe Space - พื้นที่ปลอดภัยทางใจสำหรับคุณ</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN สำหรับสไตล์ใน Modal ฮีลใจ -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // ปิดการ overwrite สไตล์พื้นฐานของ Tailwind เพื่อไม่ให้กระทบกับ CSS เดิมของโค้ด 2
+        tailwind.config = {
+            corePlugins: {
+                preflight: false,
+            }
+        }
+    </script>
     <style>
         :root {
             --bg-color: #FFFDF4;
@@ -18,6 +28,8 @@
             --btn-hover: #FAEDCD;
             --history-bg: #F9F6EE;
             --icon-stroke: #FFB703;
+            --alert-bg: #FFF3F3;
+            --alert-text: #D90429;
         }
 
         body.dark-mode {
@@ -31,6 +43,8 @@
             --btn-hover: #3A3A3A;
             --history-bg: #181818;
             --icon-stroke: #FFB703;
+            --alert-bg: #3A0D13;
+            --alert-text: #FFB3B3;
         }
 
         * {
@@ -47,7 +61,8 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            /* เพิ่ม padding ด้านล่าง เพื่อไม่ให้แถบสายด่วนบังเนื้อหา */
+            padding: 20px 20px 90px 20px; 
             transition: background 0.3s, color 0.3s;
         }
 
@@ -92,7 +107,7 @@
         }
         
         .intro-section {
-            padding: 30px 0;
+            padding: 20px 0;
         }
 
         .intro-section p {
@@ -121,10 +136,13 @@
             transform: scale(0.98);
         }
 
+        .mood-section, .diary-section, .result-box {
+            display: none;
+        }
+
         .mood-section {
             margin-bottom: 20px;
             text-align: left;
-            display: none; /* ซ่อนไว้ก่อนในหน้าแรก */
         }
 
         .mood-grid {
@@ -183,7 +201,6 @@
         .diary-section {
             margin-top: 16px;
             text-align: left;
-            display: none;
         }
 
         .diary-section label {
@@ -230,9 +247,8 @@
             padding: 16px;
             margin-top: 16px;
             text-align: left;
-            display: none;
             border-left: 4px solid var(--primary);
-            max-height: 380px;
+            max-height: 500px;
             overflow-y: auto;
         }
 
@@ -259,6 +275,7 @@
             margin-top: 8px;
             font-style: italic;
             border: 1px solid var(--accent);
+            display: none;
         }
 
         .reset-btn {
@@ -307,11 +324,56 @@
         .clear-history-btn {
             background: none;
             border: none;
-            color: #d90429;
+            color: var(--alert-text);
             font-size: 0.75rem;
             cursor: pointer;
             margin-top: 6px;
             text-decoration: underline;
+        }
+
+        .disclaimer-card {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: left;
+            margin-top: 24px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--accent);
+            line-height: 1.5;
+        }
+
+        .emergency-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--alert-bg);
+            color: var(--alert-text);
+            text-align: center;
+            padding: 12px 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            font-size: 0.85rem;
+            z-index: 1000;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        .emergency-banner strong {
+            font-size: 0.95rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Animation สไตล์จากโค้ด 1 */
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.4); opacity: 0.9; }
+        }
+        .animate-breathe {
+            animation: breathe 8s ease-in-out infinite;
+        }
+        .fade-out {
+            transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+            opacity: 0;
+            transform: translateY(-20px);
         }
     </style>
 </head>
@@ -386,7 +448,27 @@
         <div id="resultBox" class="result-box">
             <h3 id="resultTitle">คำแนะนำสำหรับคุณ</h3>
             <p id="resultDesc">คำแนะนำจะปรากฏที่นี่...</p>
-            <div id="userDiaryNote" class="diary-display" style="display: none;"></div>
+            <div id="userDiaryNote" class="diary-display"></div>
+
+            <!-- ส่วนเพิ่มจากโค้ด 1: ปุ่มเรียกเปิด Modal คลังฮีลใจ -->
+            <hr class="my-4 border-slate-200" />
+            <div class="space-y-3 text-center">
+                <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">อยากลองใช้เวลาฮีลใจสักนิดไหม?</p>
+                <div class="flex justify-center gap-3">
+                    <button onclick="openModal('breathing')" class="flex flex-col items-center gap-1 p-2 rounded-xl bg-teal-50 hover:bg-teal-100 transition">
+                        <span class="text-xl">🌬️</span>
+                        <span class="text-[11px] text-teal-800 font-medium">ฝึกหายใจ</span>
+                    </button>
+                    <button onclick="openModal('journaling')" class="flex flex-col items-center gap-1 p-2 rounded-xl bg-amber-50 hover:bg-amber-100 transition">
+                        <span class="text-xl">📝</span>
+                        <span class="text-[11px] text-amber-800 font-medium">เขียนระบาย</span>
+                    </button>
+                    <button onclick="openModal('playlist')" class="flex flex-col items-center gap-1 p-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 transition">
+                        <span class="text-xl">🎵</span>
+                        <span class="text-[11px] text-indigo-800 font-medium">ฟังเพลงบำบัด</span>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <button id="resetBtn" class="reset-btn" onclick="resetApp()">กลับไปหน้าเริ่มต้นใหม่</button>
@@ -399,6 +481,102 @@
             </div>
             <button id="clearHistoryBtn" class="clear-history-btn" onclick="clearHistory()" style="display:none;">ล้างประวัติทั้งหมด</button>
         </div>
+
+        <!-- ข้อความ Disclaimer ในการ์ด -->
+        <div class="disclaimer-card">
+            <strong>หมายเหตุ:</strong> เว็บไซต์นี้เป็นเพียงเครื่องมือดูแลใจและสำรวจอารมณ์เบื้องต้น ข้อมูลและคำแนะนำถูกจัดทำขึ้นโดยอ้างอิงจากหลักจิตวิทยาเบื้องต้น ไม่สามารถใช้แทนการประเมิน การวินิจฉัย หรือการรักษาทางการแพทย์จากจิตแพทย์หรือนักจิตวิทยาคลินิกได้
+        </div>
+    </div>
+
+    <!-- แถบข้อความฉุกเฉิน (แสดงตลอดเวลาด้านล่าง) -->
+    <div class="emergency-banner">
+        <strong>📞 สายด่วนสุขภาพจิต โทร. 1323 (โทรฟรีตลอด 24 ชั่วโมง)</strong>
+        <span>หากคุณกำลังเผชิญกับความเครียดอย่างหนัก รู้สึกหมดหวัง หรือมีความคิดทำร้ายตนเอง โปรดติดต่อผู้เชี่ยวชาญทันที</span>
+    </div>
+
+    <!-- Modal ป๊อปอัปคลังข้อมูลการบำบัดใจ (จากโค้ด 1) -->
+    <div id="careModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white max-w-md w-full rounded-3xl p-6 shadow-xl space-y-5 relative text-left text-slate-700">
+            
+            <!-- ปุ่มปิด Pop-up -->
+            <button onclick="closeModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg border-none bg-transparent cursor-pointer">✕</button>
+
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-slate-100 pb-2 gap-4">
+                <button onclick="switchTab('breathing')" id="tab-breathing" class="tab-btn text-sm font-semibold text-teal-600 border-b-2 border-teal-600 pb-1 bg-transparent cursor-pointer">🌬️ ฝึกหายใจ</button>
+                <button onclick="switchTab('journaling')" id="tab-journaling" class="tab-btn text-sm font-semibold text-slate-400 hover:text-slate-600 pb-1 bg-transparent cursor-pointer">📝 เขียนระบาย</button>
+                <button onclick="switchTab('playlist')" id="tab-playlist" class="tab-btn text-sm font-semibold text-slate-400 hover:text-slate-600 pb-1 bg-transparent cursor-pointer">🎵 เพลงบำบัด</button>
+            </div>
+
+            <!-- Content: 1. Breathing Exercises -->
+            <div id="content-breathing" class="tab-content text-center py-4 space-y-6">
+                <p class="text-xs text-slate-500">หายใจเข้าตามวงกลมที่ขยาย และหายใจออกเมื่อวงกลมหดลง</p>
+                
+                <div class="relative flex items-center justify-center h-40">
+                    <div class="w-24 h-24 bg-teal-200/60 rounded-full animate-breathe flex items-center justify-center">
+                        <div class="w-16 h-16 bg-teal-400/80 rounded-full"></div>
+                    </div>
+                </div>
+
+                <div class="bg-teal-50 p-3 rounded-xl text-xs text-teal-800">
+                    💡 <b>เทคนิค 4-7-8:</b> หายใจเข้าลึก ๆ 4 วินาที ➔ กลั้นไว้ 7 วินาที ➔ ค่อย ๆ ผ่อนลมหายใจออก 8 วินาที
+                </div>
+            </div>
+
+            <!-- Content: 2. Journaling Space -->
+            <div id="content-journaling" class="tab-content hidden space-y-4">
+                <p class="text-xs text-slate-500">พิมพ์สิ่งที่ค้างคาในใจออกมาได้เลย ที่นี่เป็นพื้นที่ปลอดภัยของคุณ</p>
+                
+                <textarea id="journalText" rows="4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 resize-none" placeholder="เขียนสิ่งที่รู้สึกตรงนี้..."></textarea>
+                
+                <div class="flex gap-2">
+                    <button onclick="saveJournal()" class="flex-1 py-2 bg-slate-800 text-white rounded-xl text-xs font-medium hover:bg-slate-700 transition border-none cursor-pointer">บันทึกไว้ดูการเติบโต</button>
+                    <button onclick="releaseJournal()" class="flex-1 py-2 bg-amber-100 text-amber-800 rounded-xl text-xs font-medium hover:bg-amber-200 transition border-none cursor-pointer">ปล่อยมันไป 🍃</button>
+                </div>
+                <p id="journalStatus" class="text-xs text-center text-teal-600 hidden">บันทึกเรียบร้อยแล้ว ❤️</p>
+            </div>
+
+            <!-- Content: 3. Therapeutic Playlists -->
+            <div id="content-playlist" class="tab-content hidden space-y-3">
+                <p class="text-xs text-slate-500">เลือกบรรยากาศเสียงที่อยากฟังเพื่อปรับอารมณ์</p>
+                
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-indigo-50/50 transition cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg">🌧️</span>
+                            <div class="text-left">
+                                <p class="text-xs font-semibold text-slate-700 m-0">เสียงฝนตกชุ่มฉ่ำ</p>
+                                <p class="text-[10px] text-slate-400 m-0">Nature Sounds • 30 นาที</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-indigo-600 font-medium">เล่น ▷</span>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-indigo-50/50 transition cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg">🎹</span>
+                            <div class="text-left">
+                                <p class="text-xs font-semibold text-slate-700 m-0">เปียโนนุ่ม ๆ ผ่อนคลาย</p>
+                                <p class="text-[10px] text-slate-400 m-0">Lo-fi & Chill • 45 นาที</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-indigo-600 font-medium">เล่น ▷</span>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-indigo-50/50 transition cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg">🌊</span>
+                            <div class="text-left">
+                                <p class="text-xs font-semibold text-slate-700 m-0">คลื่นทะเลซัดฝั่ง</p>
+                                <p class="text-[10px] text-slate-400 m-0">Calming Waves • 60 นาที</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-indigo-600 font-medium">เล่น ▷</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <script>
@@ -409,13 +587,11 @@
             document.body.classList.toggle('dark-mode');
         }
 
-        // ฟังก์ชันเมื่อกดเริ่มหน้าแรก
         function startCheckIn() {
             document.getElementById('introSection').style.display = 'none';
             document.getElementById('moodSection').style.display = 'block';
         }
 
-        // แก้ไขให้ส่ง parameter ตัวปุ่ม (btn) มาด้วย
         function selectMood(type, moodName, btn) {
             currentMoodType = type;
             currentMoodName = moodName;
@@ -469,7 +645,6 @@
                 diaryNote.style.display = 'none';
             }
 
-            // ซ่อนช่องเลือกอารมณ์และช่องพิมพ์ไดอารี่ เพื่อเน้นโชว์ผลลัพธ์ (ตามลำดับการทำงานที่ต้องการ)
             document.getElementById('moodSection').style.display = 'none';
             document.getElementById('diarySection').style.display = 'none';
             
@@ -524,13 +699,11 @@
             }
         }
 
-        // ฟังก์ชันเริ่มใหม่ ให้กลับไปโชว์หน้า Intro อีกครั้ง
         function resetApp() {
             const buttons = document.querySelectorAll('.mood-btn');
             buttons.forEach(btn => btn.classList.remove('selected'));
             document.getElementById('diaryText').value = '';
             
-            // รีเซ็ตการแสดงผลกลับไปหน้าแรกสุด
             document.getElementById('introSection').style.display = 'block';
             document.getElementById('moodSection').style.display = 'none';
             document.getElementById('diarySection').style.display = 'none';
@@ -540,6 +713,53 @@
             currentMoodType = '';
             currentMoodName = '';
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* ฟังก์ชันควบคุม Modal และ Tabs จากโค้ด 1 */
+        function openModal(defaultTab) {
+            document.getElementById('careModal').classList.remove('hidden');
+            document.getElementById('careModal').classList.add('flex');
+            switchTab(defaultTab);
+        }
+
+        function closeModal() {
+            document.getElementById('careModal').classList.add('hidden');
+            document.getElementById('careModal').classList.remove('flex');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn text-sm font-semibold text-slate-400 hover:text-slate-600 pb-1 bg-transparent cursor-pointer";
+            });
+
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+
+            const activeTab = document.getElementById(`tab-${tabName}`);
+            if(tabName === 'breathing') activeTab.className = "tab-btn text-sm font-semibold text-teal-600 border-b-2 border-teal-600 pb-1 bg-transparent cursor-pointer";
+            if(tabName === 'journaling') activeTab.className = "tab-btn text-sm font-semibold text-amber-600 border-b-2 border-amber-600 pb-1 bg-transparent cursor-pointer";
+            if(tabName === 'playlist') activeTab.className = "tab-btn text-sm font-semibold text-indigo-600 border-b-2 border-indigo-600 pb-1 bg-transparent cursor-pointer";
+        }
+
+        function saveJournal() {
+            const status = document.getElementById('journalStatus');
+            status.innerText = "บันทึกเรียบร้อยแล้ว ❤️";
+            status.classList.remove('hidden');
+            setTimeout(() => status.classList.add('hidden'), 2500);
+        }
+
+        function releaseJournal() {
+            const textarea = document.getElementById('journalText');
+            textarea.classList.add('fade-out');
+            
+            setTimeout(() => {
+                textarea.value = '';
+                textarea.classList.remove('fade-out');
+                const status = document.getElementById('journalStatus');
+                status.innerText = "ปล่อยความรู้สึกนั้นไปกับสายลมแล้วนะ 🍃";
+                status.classList.remove('hidden');
+                setTimeout(() => status.classList.add('hidden'), 2500);
+            }, 1500);
         }
 
         window.onload = function() {
